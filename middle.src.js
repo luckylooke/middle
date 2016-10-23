@@ -1,19 +1,20 @@
-function Middle(arg1, arg2){
-    if(arg1 !== '<!init!>'){
-        var middleInstance = new Middle('<!init!>', arg1), // arg1 becomes arg2 for middleInstance
+function Middle(cb, ctx, init){
+    if(!init){
+        var middleInstance = new Middle(cb, ctx, 'init'),
             bindedRun = middleInstance.run.bind(middleInstance);
 
         bindedRun.use = middleInstance.use.bind(middleInstance);
         return bindedRun;
     }
 
-    if(typeof arg2 == 'function'){
-        this.callback = arg2;
+    if(typeof cb == 'function'){
+        this.callback = cb.bind(ctx || null);
     }else{
         this.callback = function () {};
     }
 
     this._stack = [];
+    this.id = Math.random(); // dev: contexts identification
 }
 
 Middle.prototype.run = function () {
@@ -49,9 +50,12 @@ Middle.prototype.next = function() {
 // TEST: ===============================================================================
 
 var myCallback = function (input) {
-        console.log('myCallback result:', input);
+        input *= 10;
+        console.log('myCallback result:', input, this.test);
     },
-    mw= new Middle(myCallback),
+    cbCtx = {test: 'blue'},
+    myCtx = {test: 'red'},
+    mw = new Middle(myCallback, cbCtx),
     fn1 = function(next, input){
         input++;
         console.log('fn1', input, this.test);
@@ -68,9 +72,9 @@ var myCallback = function (input) {
         input++;
         console.log('fn3', input, this.test);
         next(input);
-    },
-    context = {test: 'red'};
-mw.use(fn1.bind(context));
+    };
+
+mw.use(fn1.bind(myCtx));
 mw.use(fn2); // test is undefined
-mw.use(fn3.bind(context));
+mw.use(fn3.bind(myCtx));
 mw(10);
