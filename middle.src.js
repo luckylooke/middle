@@ -18,8 +18,10 @@ function Middle(cb, ctx, init){
 }
 
 Middle.prototype.run = function () {
-    if(!this._stack.length)
+    if(!this._stack.length){
         this.callback.apply(null, arguments);
+        return;
+    }
 
     this._stackIndex = 0;
     this._stackLen = this._stack.length;
