@@ -3,7 +3,6 @@ function Middle(cb, ctx, init){
     if (!(this instanceof Middle))
         throw new Error("Middle needs to be called with the new keyword");
 
-    else return new Fubar(foo, bar);
     if(!init){
         var middleInstance = new Middle(cb, ctx, 'init'),
             bindedRun = middleInstance.run.bind(middleInstance);
