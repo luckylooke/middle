@@ -1,20 +1,28 @@
-function Middle(fn){
-    if(fn !== '!init!'){
-        var middleInstance = new Middle('!init!'),
+function Middle(arg1, arg2){
+    if(arg1 !== '<!init!>'){
+        var middleInstance = new Middle('<!init!>', arg1), // arg1 becomes arg2 for middleInstance
             bindedRun = middleInstance.run.bind(middleInstance);
 
         bindedRun.use = middleInstance.use.bind(middleInstance);
         return bindedRun;
     }
+
+    if(typeof arg2 == 'function'){
+        this.callback = arg2;
+    }else{
+        this.callback = function () {};
+    }
+
     this._stack = [];
 }
 
 Middle.prototype.run = function () {
-    if(this._stack.length){
-        this._stackIndex = 0;
-        this._stackLen = this._stack.length;
-        this.next.apply(this, arguments);
-    }
+    if(!this._stack.length)
+        this.callback.apply(null, arguments);
+
+    this._stackIndex = 0;
+    this._stackLen = this._stack.length;
+    this.next.apply(this, arguments);
 };
 
 Middle.prototype.use = function (fn) {
@@ -27,6 +35,8 @@ Middle.prototype.next = function() {
         this._stack[this._stackIndex - 1]
             .bind(null, this.next.bind(this))
             .apply(null, arguments);
+    }else{
+        this.callback.apply(null, arguments);
     }
 };
 
@@ -36,7 +46,12 @@ Middle.prototype.next = function() {
 // }
 
 
-var mw = new Middle(),
+// TEST: ===============================================================================
+
+var myCallback = function (input) {
+        console.log('myCallback result:', input);
+    },
+    mw= new Middle(myCallback),
     fn1 = function(next, input){
         input++;
         console.log('fn1', input, this.test);
