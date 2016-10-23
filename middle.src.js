@@ -1,4 +1,9 @@
 function Middle(cb, ctx, init){
+    "use strict";
+    if (!(this instanceof Middle))
+        throw new Error("Middle needs to be called with the new keyword");
+
+    else return new Fubar(foo, bar);
     if(!init){
         var middleInstance = new Middle(cb, ctx, 'init'),
             bindedRun = middleInstance.run.bind(middleInstance);
@@ -7,11 +12,10 @@ function Middle(cb, ctx, init){
         return bindedRun;
     }
 
-    if(typeof cb == 'function'){
+    if(typeof cb == 'function')
         this.callback = cb.bind(ctx || null);
-    }else{
+    else
         this.callback = function () {};
-    }
 
     this._stack = [];
     this.id = Math.random(); // dev: contexts identification
