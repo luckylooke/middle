@@ -5,14 +5,17 @@ function Middle(cb, ctx, init){
 
     if(!init){
         var middleInstance = new Middle(cb, ctx, 'init'),
-            bindedRun = middleInstance.run.bind(middleInstance);
+            bindedRun = middleInstance.run.bind(middleInstance),
+            useInstance = new Middle(middleInstance.use, middleInstance, 'init'),
+            useInstancebindedRun = useInstance.run.bind(useInstance);
 
-        bindedRun.use = middleInstance.use.bind(middleInstance);
+        useInstancebindedRun.use = useInstance.use.bind(useInstance);
+        bindedRun.use = useInstancebindedRun;
         return bindedRun;
     }
 
     if(typeof cb == 'function')
-        this.callback = cb.bind(ctx || null);
+        this.callback = cb.bind(ctx == 'middleInstance' ? this : ctx || null);
     else
         this.callback = function () {};
 
@@ -79,6 +82,10 @@ var myCallback = function (input) {
         next(input);
     };
 
+mw.use.use(function (next, fn) {
+    console.log('you added new middleware: ', fn);
+    next(fn);
+});
 mw.use(fn1.bind(myCtx));
 mw.use(fn2); // test is undefined
 mw.use(fn3.bind(myCtx));
