@@ -24,21 +24,26 @@ function Middle(cb, ctx, init){
 }
 
 Middle.prototype.run = function () {
-    if(!this._stack.length){
-        this.callback.apply(null, arguments);
-        return;
-    }
-
-    this._stackIndex = 0;
-    this._stackLen = this._stack.length;
-    this.next.apply(this, arguments);
+    new Runner(this._stack, this.callback, arguments);
 };
 
 Middle.prototype.use = function (fn) {
     this._stack.push(fn);
 };
 
-Middle.prototype.next = function() {
+Runner = function(stack, cb, args){
+    this._stack = stack;
+    this.callback = cb;
+
+    if(!this._stack.length)
+        return this.callback.apply(null, args);
+
+    this._stackIndex = 0;
+    this._stackLen = this._stack.length;
+    return this.next.apply(this, args);
+};
+
+Runner.prototype.next = function() {
     if(this._stackIndex < this._stackLen){
         this._stackIndex++;
         this._stack[this._stackIndex - 1]
@@ -90,3 +95,5 @@ mw.use(fn1.bind(myCtx));
 mw.use(fn2); // test is undefined
 mw.use(fn3.bind(myCtx));
 mw(10);
+mw(10);
+mw(15);
