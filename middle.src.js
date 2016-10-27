@@ -24,7 +24,7 @@ function Middle(cb, ctx, init){
 }
 
 Middle.prototype.run = function () {
-    new Runner(this._stack, this.callback, arguments);
+    return new Runner(this._stack, this.callback, arguments);
 };
 
 Middle.prototype.use = function (fn) {
@@ -53,11 +53,6 @@ Runner.prototype.next = function() {
         this.callback.apply(null, arguments);
     }
 };
-
-// function argsToArray(argums) {
-//     // https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Functions/arguments
-//      return (argums.length === 1 ? [argums[0]] : Array.apply(null, argums));
-// }
 
 
 // TEST: ===============================================================================
@@ -97,3 +92,13 @@ mw.use(fn3.bind(myCtx));
 mw(10);
 mw(10);
 mw(15);
+
+var testObj = {
+        someConstant: 10
+    };
+
+testObj.sum = new Middle(function(a, b){
+    return {result: a+b+this.someConstant};
+}, testObj);
+
+console.log('returns result 18: ', testObj.sum(3, 5).result);
