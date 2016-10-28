@@ -15,7 +15,7 @@ function Middle(cb, ctx, init){
     }
 
     if(typeof cb == 'function')
-        this.callback = cb.bind(ctx == 'middleInstance' ? this : ctx || null);
+        this.callback = cb.bind(ctx == 'middleInstance' ? this : (ctx !== undefined ? ctx : null));
     else
         this.callback = function () {};
 
@@ -24,11 +24,12 @@ function Middle(cb, ctx, init){
 }
 
 Middle.prototype.run = function () {
-    return new Runner(this._stack, this.callback, arguments);
+    var result =  new Runner(this._stack, this.callback, arguments);
+    return result.__middlePrimitiveValueProtection__ || result;
 };
 
-Middle.prototype.use = function (fn) {
-    this._stack.push(fn);
+Middle.prototype.use = function (fn, ctx) {
+    this._stack.push(ctx !== undefined ? fn.bind(ctx) : fn);
 };
 
 Runner = function(stack, cb, args){
@@ -36,22 +37,29 @@ Runner = function(stack, cb, args){
     this.callback = cb;
 
     if(!this._stack.length)
-        return this.callback.apply(null, args);
+        return this.result(this.callback.apply(null, args));
 
     this._stackIndex = 0;
     this._stackLen = this._stack.length;
-    return this.next.apply(this, args);
+    return this.result(this.next.apply(this, args));
 };
 
 Runner.prototype.next = function() {
     if(this._stackIndex < this._stackLen){
         this._stackIndex++;
-        this._stack[this._stackIndex - 1]
+        return this._stack[this._stackIndex - 1]
             .bind(null, this.next.bind(this))
             .apply(null, arguments);
     }else{
-        this.callback.apply(null, arguments);
+        return this.callback.apply(null, arguments);
     }
+};
+
+Runner.prototype.result = function(val) {
+   if(typeof val == 'object')
+       return val;
+    else
+        return {__middlePrimitiveValueProtection__: val};
 };
 
 
@@ -84,7 +92,7 @@ var myCallback = function (input) {
 
 mw.use.use(function (next, fn) {
     console.log('you added new middleware: ', fn);
-    next(fn);
+    return next(fn);
 });
 mw.use(fn1.bind(myCtx));
 mw.use(fn2); // test is undefined
@@ -97,8 +105,17 @@ var testObj = {
         someConstant: 10
     };
 
+function logMiddle(next, a, b) {
+    console.log('You are about summing these values:', a, b, this.someConstant);
+    return next(a, b);
+}
+
 testObj.sum = new Middle(function(a, b){
-    return {result: a+b+this.someConstant};
+    return a+b+this.someConstant;
 }, testObj);
 
-console.log('returns result 18: ', testObj.sum(3, 5).result);
+testObj.sum.use(logMiddle);
+testObj.sum.use(logMiddle.bind(testObj));
+testObj.sum.use(logMiddle, testObj);
+
+console.log('returns result 18: ', testObj.sum(3, 5));
