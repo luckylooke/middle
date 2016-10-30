@@ -128,3 +128,6 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
+#npm
+node_modules

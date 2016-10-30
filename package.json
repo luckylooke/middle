@@ -1,0 +1,35 @@
+{
+  "name": "middle",
+  "version": "1.0.0",
+  "description": "micro-library for quick implementation of \"middleware\" support into any project, it helps you implement open/closed principe",
+  "main": "dist/middle.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "chai-as-promised": "^6.0.0",
+    "mocha": "^3.1.2",
+    "webpack": "^1.13.3"
+  },
+  "scripts": {
+    "test": "mocha test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/luckylooke/middle.git"
+  },
+  "keywords": [
+    "middleware",
+    "library",
+    "helper",
+    "small"
+  ],
+  "author": "luckylooke",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/luckylooke/middle/issues"
+  },
+  "homepage": "https://github.com/luckylooke/middle#readme"
+}
