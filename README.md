@@ -6,4 +6,57 @@ This tool will help you implement [open/closed](https://en.wikipedia.org/wiki/Op
 
 By micro-library I mean really micro, it has only 1.6kB minified. 
 
+## Install
 
+You have several options to install middle.js
+
+1. Download built files from github:
+```
+https://github.com/luckylooke/middle/tree/master/dist
+```
+
+2. Clone via git:
+```
+git clone https://github.com/luckylooke/middle.git
+```
+
+3. Install via npm:
+```
+npm install middle.js
+```
+
+3. Install via bower:
+```
+bower install middle.js
+```
+
+## Usage
+
+Let say you want users of your library/system/... to be able to use middleware on your public methods. For example imagine you have super cool message library with method send(consignee, message).
+
+```js
+mySuperMsgLib.send('Superman', 'I love you, Lois Lane');
+```
+
+Superman get message 'I love you, Lois Lane'. Lib user enhance this by adding footer like this
+
+```js
+mySuperMsgLib.send.use(function addFooter(next, consignee, message){
+    message += '<br>send by Daily Planet message system.'; // enahancing message
+    next(consignee, message); // passing data to next middleware or at last to ending method
+});
+```
+
+Now when you send again the message
+
+```js
+mySuperMsgLib.send('Superman', 'I really love you, Lois Lane');
+```
+
+Superman get message 'I really love you, Lois Lane<br>send by Daily Planet message system.'.
+To add this functionality to your method, you need to do this:
+
+```js
+var mySuperMsgLib = new MySuperMsgLib();
+mySuperMsgLib.send = new Middle(MySuperMsgLib.prototype.send, mySuperMsgLib);
+```

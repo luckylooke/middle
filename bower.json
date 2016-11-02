@@ -1,0 +1,23 @@
+{
+  "name": "middle.js",
+  "description": "micro-library for quick implementation of \"middleware\" support into any project, it helps you implement open/closed principe",
+  "main": "dist/middle.js",
+  "authors": [
+    "luckylooke"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "middleware",
+    "library",
+    "helper",
+    "small"
+  ],
+  "homepage": "https://github.com/luckylooke/middle",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
