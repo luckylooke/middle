@@ -4,6 +4,6 @@ By "middleware" I mean something between Express.js middleware pattern and event
 
 This tool will help you implement [open/closed](https://en.wikipedia.org/wiki/Open/closed_principle) principle from [SOLID](https://en.wikipedia.org/wiki/SOLID_(object-oriented_design))
 
-in progress right now, use of this micro library will be explained soon ;)
+By micro-library I mean really micro, it has only 1.6kB minified. 
 
 

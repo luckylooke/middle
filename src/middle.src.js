@@ -1,7 +1,6 @@
 (function(undefined){
     "use strict";
     function Middle(cb, ctx, init){
-        "use strict";
         if (!(this instanceof Middle))
             throw new Error("Middle needs to be called with the new keyword");
 
@@ -28,10 +27,10 @@
 
     Middle.prototype.run = function () {
         var result =  new Runner(this._stack, this.callback, arguments);
-        if(result.__middlePrimitiveValueProtection__ === '__middleUndefinedProtection__')
+        if(result.__mPrVaPr__ === '__mUnPr__') // mPrVaPr = middlePrimitiveValueProtection, mUnPr = middleUndefinedProtection
             return undefined;
-        else if(result.__middlePrimitiveValueProtection__ !== undefined)
-            return result.__middlePrimitiveValueProtection__;
+        else if(result.__mPrVaPr__ !== undefined)
+            return result.__mPrVaPr__;
         //else
         return result;
     };
@@ -67,9 +66,9 @@
         if(typeof val == 'object')
             return val;
         else if(val !== undefined)
-            return {__middlePrimitiveValueProtection__: val};
+            return {__mPrVaPr__: val};
         else
-            return {__middlePrimitiveValueProtection__: '__middleUndefinedProtection__'};
+            return {__mPrVaPr__: '__mUnPr__'};
     };
 
     if(typeof module != 'undefined')
