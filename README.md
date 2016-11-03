@@ -54,9 +54,24 @@ mySuperMsgLib.send('Superman', 'I really love you, Lois Lane');
 ```
 
 Superman get message 'I really love you, Lois Lane<br>send by Daily Planet message system.'.
-To add this functionality to your method, you need to do this:
+To add this functionality to your method for one instace of class, you need to do this:
 
 ```js
 var mySuperMsgLib = new MySuperMsgLib();
 mySuperMsgLib.send = new Middle(MySuperMsgLib.prototype.send, mySuperMsgLib);
 ```
+
+For all instances, apply on prototype:
+
+```js
+MySuperMsgLib.prototype.send = new Middle(function(){
+    // send implementation
+});
+```
+
+
+### TODO:
+- Finish tests migration
+- Docs
+- plugin for middlewares order management (use.first(fn), use.last(fn), use.at(index, fn))
+- plugin for middlewares on fn return
