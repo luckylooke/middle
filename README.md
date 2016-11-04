@@ -71,7 +71,6 @@ MySuperMsgLib.prototype.send = new Middle(function(){
 
 
 ### TODO:
-- Finish tests migration
 - Docs
 - plugin for middlewares order management (use.first(fn), use.last(fn), use.at(index, fn))
 - plugin for middlewares on fn return
