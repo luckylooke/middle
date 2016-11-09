@@ -23,7 +23,7 @@
         if(typeof cb == 'function')
             this.callback = (ctx == 'middleInstance') ? cb.bind(this) : (ctx !== undefined ? cb.bind(ctx) : cb);
         else
-            this.callback = function () {};
+            this.callback = function () {return arguments};
 
         this.run = function() { // must be inside constructor because we pass instance info via its object
             return callRunner(arguments, this);
