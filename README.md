@@ -4,7 +4,7 @@ By "middleware" I mean something between Express.js middleware pattern and event
 
 This tool will help you implement [open/closed](https://en.wikipedia.org/wiki/Open/closed_principle) principle from [SOLID](https://en.wikipedia.org/wiki/SOLID_(object-oriented_design))
 
-By micro-library I mean really micro, it has only 1.6kB minified. 
+By micro-library I mean really micro, it has only 1.6kB minified non-gzipped. 
 
 ## Install
 
@@ -23,11 +23,6 @@ git clone https://github.com/luckylooke/middle.git
 3. Install via npm:
 ```
 npm install middle.js
-```
-
-3. Install via bower:
-```
-bower install middle.js
 ```
 
 ## Usage
