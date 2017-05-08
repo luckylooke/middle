@@ -1,178 +1,187 @@
-var chai = require('chai');
-var chaiAsPromised = require("chai-as-promised");
-chai.use(chaiAsPromised);
-var expect = chai.expect;
+let chai = require( 'chai' );
+let chaiAsPromised = require( "chai-as-promised" );
+chai.use( chaiAsPromised );
+let expect = chai.expect;
 
-var Middle = require('../dist/middle.js');
+let middle = require( '../dist/middle.js' ).default;
+// let mdeco = require( '../dist/middle.js' ).decorator;
 
-describe('Middle', function() {
-    describe('constructor', function() {
-        var cb = function () {
-                return 'return value';
-            },
-            middle = new Middle(cb);
 
-        it('should return a function', function() {
-            expect(middle).to.be.a('function');
-        });
+describe( 'middle', function () {
 
-        it('should return a callback result when called', function() {
-            expect(middle()).to.equal('return value');
-        });
+	let cb = function () {
+			return 'return value';
+		},
+		ecb = middle( cb );
 
-        describe('constructor - context provided', function() {
-            it('should use context for callback function if provided', function() {
-                var result,
-                    cb = function () {
-                        result = this.test;
-                    },
-                    ctx = {test:'test'},
-                    middle = new Middle(cb, ctx);
-                middle();
+	it( 'should return a function', function () {
+		expect( ecb ).to.be.a( 'function' );
+	} );
 
-                expect(result).to.equal(ctx.test);
-            });
-        });
+	it( 'should return a callback result when called', function () {
+		expect( ecb() ).to.equal( 'return value' );
+	} );
 
-        describe('constructor - init parameter provided', function() {
-            it('should return Middle instance if third parameter provided', function() {
-                var middle = new Middle(null, null, 'init');
-                expect(middle).to.be.an.instanceof(Middle);
-            });
-        });
+	describe( 'main fn - context provided', function () {
+		it( 'should use context for callback function if provided', function () {
+			let result = '',
+				cb = function () {
+					result = this.test;
+				},
+				ctx = { test: 'test' },
+				ecb = middle( cb, ctx );
+			ecb();
 
-    });
+			expect( result ).to.equal( ctx.test );
+		} );
+	} );
 
-    describe('middle instance', function() {
-        var middle = new Middle();
+} );
 
-        it('should be a function', function() {
-            expect(middle).to.be.a('function');
-        });
+describe( '#use', function () {
 
-        it('should have an array property _stack', function() {
-            expect(middle._stack).to.be.an('array');
-        });
+	let ecb = middle( function () {
+			return 'return';
+		} ),
+		testBool = false,
+		test = function () {
+			testBool = true
+		};
+	ecb.use( test );
+	ecb();
 
-        it('should have a function property callback', function() {
-            expect(middle.callback).to.be.an('function');
-        });
+	it( 'should be a function', function () {
+		expect( ecb.use ).to.be.a( 'function' );
+	} );
 
-        it('should have a Middle instance in middle property', function() {
-            expect(middle.middle).to.be.an.instanceof(Middle);
-        });
-    });
+	it( 'should add provided function to stack', function () {
+		expect( ecb._m_stack.indexOf( test ) === 0 ).to.be.truth;
+	} );
 
-    describe('#use', function() {
+	it( 'should run provided function when called instance', function () {
+		expect( testBool ).to.be.truth;
+	} );
 
-        var middle = new Middle(),
-            testBool = false,
-            test = function(){testBool = true};
-        middle.use(test);
-        middle();
+	describe( '#use - providing context', function () {
 
-        it('should be a function', function() {
-            expect(middle.use).to.be.a('function');
-        });
+		let ecb = middle( function () {
+				return 'return';
+			} ),
+			testBool = false,
+			testCtx = { testVal: true },
+			test = function () {
+				testBool = this.testVal
+			};
+		ecb.use( test, testCtx );
+		ecb();
 
-        it('should add provided function to stack', function() {
-            expect(middle._stack.indexOf(test) === 0).to.be.truth;
-        });
+		it( 'should run provided function when called instance and use provided context', function () {
+			expect( testBool ).to.be.truth;
+		} );
+	} );
 
-        it('should run provided function when called instance', function() {
-            expect(testBool).to.be.truth;
-        });
+	describe( '#use - usecase prototype', function () {
+		function MyClass() {
+			this.suprdupr = 'supr';
+		}
 
-        describe('#use - providing context', function(){
+		MyClass.prototype.suprMethod = middle( function suprMet() {
+			return this.suprdupr + 'dupr';
+		} );
 
-            var middle = new Middle(),
-                testBool = false,
-                testCtx = {testVal: true},
-                test = function(){testBool = this.testVal};
-            middle.use(test, testCtx);
-            middle();
+		let myClass = new MyClass();
 
-            it('should run provided function when called instance and use provided context', function() {
-                expect(testBool).to.be.truth;
-            });
-        });
+		myClass.suprMethod.use( function useInSupr( next ) {
+			return next() + 'mupr';
+		} );
 
-        describe('#use - usecase prototype', function(){
-            function MyClass(){
-                this.suprdupr = 'supr';
-            }
+		let returnVal = myClass.suprMethod();
 
-            MyClass.prototype.suprMethod = new Middle(function suprMet(){
-                return this.suprdupr + 'dupr';
-            });
+		it( 'should run provided function when called instance and use provided context', function () {
+			expect( returnVal ).to.equal( 'suprduprmupr' );
+		} );
+	} );
 
-            var myClass = new MyClass();
+	describe( '#use - usecase passing parameter forward addition', function () {
 
-            myClass.suprMethod.use(function useInSupr(next) {
-                return next() + 'mupr';
-            });
+		let cb = function ( input ) {
+				return input + '' + 0;
+			},
+			test1 = function ( next, input ) {
+				return next( input ) + '' + 1;
+			},
+			test2 = function ( next, input ) {
+				return next( input ) + '' + 2;
+			},
+			test3 = function ( next, input ) {
+				return next( input ) + '' + 3;
+			},
+			ecb = middle( cb ),
+			result;
 
-            var returnVal = myClass.suprMethod();
+		ecb.use( test3 );
+		ecb.use( test2 );
+		ecb.use( test1 );
 
-            it('should run provided function when called instance and use provided context', function() {
-                expect(returnVal).to.equal('suprduprmupr');
-            });
-        });
+		result = ecb( 'start:' );
 
-        describe('#use - usecase passing parameter forward addition', function(){
+		it( 'should run provided function when called instance and use provided context', function () {
+			expect( result ).to.equal( 'start:0123' );
+		} );
+	} );
 
-            var cb = function(input){
-                    return input + '' + 0;
-                },
-                test1 = function(next, input){
-                    return next(input) + '' + 1;
-                },
-                test2 = function(next, input){
-                    return next(input) + '' + 2;
-                },
-                test3 = function(next, input){
-                    return next(input) + '' + 3;
-                },
-                middle = new Middle(cb),
-                result;
+	describe( '#use - usecase passing parameter backward addition', function () {
 
-            middle.use(test3);
-            middle.use(test2);
-            middle.use(test1);
+		let cb = function ( input ) {
+				return input + '' + 4;
+			},
+			test1 = function ( next, input ) {
+				return next( input + '' + 1 );
+			},
+			test2 = function ( next, input ) {
+				return next( input + '' + 2 );
+			},
+			test3 = function ( next, input ) {
+				return next( input + '' + 3 );
+			},
+			ecb = middle( cb ),
+			result;
 
-            result = middle('start:');
+		ecb.use( test1 );
+		ecb.use( test2 );
+		ecb.use( test3 );
 
-            it('should run provided function when called instance and use provided context', function() {
-                expect(result).to.equal('start:0123');
-            });
-        });
+		result = ecb( 'start:' );
 
-        describe('#use - usecase passing parameter backward addition', function(){
+		it( 'should run provided function when called instance and use provided context', function () {
+			expect( result ).to.equal( 'start:1234' );
+		} );
+	} );
+} );
 
-            var cb = function(input){
-                    return input + '' + 4;
-                },
-                test1 = function(next, input){
-                    return next(input + '' + 1);
-                },
-                test2 = function(next, input){
-                    return next(input + '' + 2);
-                },
-                test3 = function(next, input){
-                    return next(input + '' + 3);
-                },
-                middle = new Middle(cb),
-                result;
+// Cannot make decorators work in mocha/chai.. any help? Thanks
 
-            middle.use(test1);
-            middle.use(test2);
-            middle.use(test3);
-
-            result = middle('start:');
-
-            it('should run provided function when called instance and use provided context', function() {
-                expect(result).to.equal('start:1234');
-            });
-        });
-    });
-});
+// describe( '@mdeco', function () {
+//
+// 	class SomeClass{
+// 		@mdeco
+// 		test(){
+// 			return 'test';
+// 		}
+// 	}
+//
+// 	let someClassInstance = new SomeClass();
+//
+// 	it( 'should return a function', function () {
+// 		expect( someClassInstance.test.use ).to.be.a( 'function' );
+// 	} );
+//
+// 	someClassInstance.test.use( function( next ){
+// 		return next() + '123';
+// 	} );
+//
+// 	it( 'should return a callback result when called', function () {
+// 		expect( someClassInstance.test() ).to.equal( 'test123' );
+// 	} );
+//
+// } );
