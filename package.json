@@ -1,6 +1,6 @@
 {
   "name": "middle.js",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "micro-library for quick implementation of \"middleware\" support into any project, it helps you implement open/closed principe",
   "main": "dist/middle.js",
   "directories": {
