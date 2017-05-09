@@ -4,7 +4,7 @@ export default function middle( fn, ctx ) {
 
 	let enhanced = function middle_enhanced_fn() {
 
-		let arg = Array.apply( null, arguments )
+		let arg = Array.prototype.slice.call( arguments )
 
 		if ( enhanced._m_ctx === undefined )
 			enhanced._m_ctx = this

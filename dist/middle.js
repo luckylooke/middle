@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ 	return __webpack_require__(__webpack_require__.s = 1);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -92,7 +92,7 @@ function middle(fn, ctx) {
 
 	var enhanced = function middle_enhanced_fn() {
 
-		var arg = Array.apply(null, arguments);
+		var arg = Array.prototype.slice.call(arguments);
 
 		if (enhanced._m_ctx === undefined) enhanced._m_ctx = this;
 
@@ -141,6 +141,14 @@ function decorator(target, keyOrCtx, descriptor) {
 		}
 	};
 }
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+(function webpackMissingModule() { throw new Error("Cannot find module \"babel-polyfill\""); }());
+module.exports = __webpack_require__(0);
+
 
 /***/ })
 /******/ ]);
