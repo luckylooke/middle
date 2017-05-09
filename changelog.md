@@ -1,5 +1,8 @@
 # Middle.js changelog
 
+## 3.0.3
+- build fix
+
 ## 3.0.2
 - arguments to array conversion fix
 
