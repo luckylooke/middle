@@ -28,7 +28,7 @@ export default function middle( fn, ctx ) {
 		enhanced._m_stack.push( fn.bind( ctx ) )
 	}
 
-	return enhanced;
+	return enhanced
 }
 
 // ES7 decorator
