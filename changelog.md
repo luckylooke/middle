@@ -1,5 +1,9 @@
 # Middle.js changelog
 
+## 3.1.0
+- es6 module via rollup
+- bower removed
+
 ## 3.0.3
 - build fix
 
