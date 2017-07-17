@@ -90,29 +90,56 @@ exports.default = middle;
 exports.decorator = decorator;
 function middle(fn, ctx) {
 
+	// TODO: enahnaced as class 
+
 	var enhanced = function middle_enhanced_fn() {
 
-		var arg = Array.prototype.slice.call(arguments);
+		var args = Array.prototype.slice.call(arguments);
 
 		if (enhanced._m_ctx === undefined) enhanced._m_ctx = this;
 
 		if (enhanced._m_stack.length === enhanced._m_index) {
 
 			enhanced._m_index = 0;
-			return fn.apply(enhanced._m_ctx, arg);
+			return fn.apply(enhanced._m_ctx, args);
 		}
 
-		arg.unshift(middle_enhanced_fn);
-		return enhanced._m_stack[enhanced._m_index++].apply(enhanced._m_ctx, arg);
+		args.unshift(middle_enhanced_fn); // pass middle_enhanced_fn as first parameter (next)
+
+		return enhanced._m_stack[enhanced._m_index++].apply(enhanced._m_ctx, args);
 	};
 
 	enhanced._m_stack = [];
 	enhanced._m_index = 0;
 	enhanced._m_ctx = ctx;
 
-	enhanced.use = function (fn, ctx) {
+	enhanced.use = function (fn, ctx, index) {
 
-		enhanced._m_stack.push(fn.bind(ctx));
+		if (typeof index == 'number') enhanced._m_stack.splice(index, 0, fn.bind(ctx));else enhanced._m_stack.push(fn.bind(ctx));
+	};
+
+	enhanced.subscribe = function (fn, ctx, index, onReturn) {
+
+		var used = function used(next) {
+
+			var args = Array.prototype.slice.call(arguments);
+			args.shift(); // remove the "next" parameter
+
+			if (onReturn) {
+
+				var res = next.apply(null, args);
+				fn.call(ctx, res);
+				return res;
+			} else {
+
+				fn.apply(ctx, args);
+				return next.apply(null, args);
+			}
+		};
+
+		enhanced.use(used, null, index);
+
+		return used;
 	};
 
 	return enhanced;
