@@ -7,6 +7,7 @@ export default function middle( fn, ctx ) {
 		let arg = Array.prototype.slice.call( arguments )
 
 		if ( enhanced._m_ctx === undefined )
+
 			enhanced._m_ctx = this
 
 		if ( enhanced._m_stack.length === enhanced._m_index ) {
@@ -23,9 +24,15 @@ export default function middle( fn, ctx ) {
 	enhanced._m_index = 0
 	enhanced._m_ctx = ctx
 
-	enhanced.use = ( fn, ctx ) => {
+	enhanced.use = ( fn, ctx, index ) => {
 
-		enhanced._m_stack.push( fn.bind( ctx ) )
+		if ( index != undefined )
+
+			enhanced._m_stack.splice( index, 0, fn.bind( ctx ))
+
+		else
+
+			enhanced._m_stack.push( fn.bind( ctx ) )
 	}
 
 	return enhanced
