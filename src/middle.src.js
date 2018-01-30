@@ -2,64 +2,79 @@
 
 export default function middle( fn, ctx ) {
 
-	// TODO: enahnaced as class 
+	// TODO: Consider Enhanced class ---> enhanced = new Enhanaced() ???
 
-	const enhanced = function middle_enhanced_fn() {
-
-		const args = Array.prototype.slice.call( arguments )
-
-		if ( enhanced._m_ctx === undefined )
-
-			enhanced._m_ctx = this
-
-		if ( enhanced._m_stack.length === enhanced._m_index ) {
-
-			enhanced._m_index = 0
-			return fn.apply( enhanced._m_ctx, args )
-		}
-
-		args.unshift( middle_enhanced_fn ) // pass middle_enhanced_fn as first parameter (next)
-
-		return enhanced._m_stack[ enhanced._m_index++ ].apply( enhanced._m_ctx, args )
-	}
+	var enhanced = middle_enhanced_fn
 
 	enhanced._m_stack = []
 	enhanced._m_index = 0
 	enhanced._m_ctx = ctx
 
-	enhanced.use = ( fn, ctx, index ) => {
+	function middle_enhanced_fn() {
+
+		// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/arguments#Using_the_Spread_Syntax_with_Arguments
+		const args = [ ...arguments ]
+
+		console.log('middle_enhanced_fn this', this && this.txt)
+		debugger
+
+		if ( !ctx && ( ctx === undefined || ctx === null ) && this !== undefined ){
+			enhanced._m_ctx = ctx = this
+		}
+
+		if ( enhanced._m_stack.length === enhanced._m_index ) {
+
+			enhanced._m_index = 0
+			return fn.apply( ctx, args )
+		}
+
+		args.unshift( middle_enhanced_fn ) // pass middle_enhanced_fn as "next" function in first parameter
+
+		return enhanced._m_stack[ enhanced._m_index++ ].apply( ctx, args )
+	}
+
+	enhanced.use = ( useFn, useCtx, index ) => {
+
+		let bound
+
+		if ( useCtx !== undefined && useCtx !== null )
+			bound = useFn.bind( useCtx )
 
 		if ( typeof index == 'number' )
 
-			enhanced._m_stack.splice( index, 0, fn.bind( ctx ))
+			enhanced._m_stack.splice( index, 0, bound || useFn )
 
 		else
 
-			enhanced._m_stack.push( fn.bind( ctx ) )
+			enhanced._m_stack.push( bound || useFn )
 	}
 
-	enhanced.subscribe = ( fn, ctx, index, onReturn ) => {
+	enhanced.subscribe = ( subFn, subCtx, index, onReturn ) => {
 
 		const used = function( next ) {
 
-			const args = Array.prototype.slice.call( arguments )
-			args.shift() // remove the "next" parameter
-			
+			const args = [ ...arguments ]
+
+			if ( !subCtx && ( subCtx === undefined || subCtx === null ))
+				subCtx = ctx
+
 			if ( onReturn ){
 
-				const res = next.apply( null, args )
-				fn.call( ctx, res )
+				const res = next.apply( ctx, args ) // continue chain
+				subFn.call( subCtx, res ) // call callback on return path
 				return res
 
-			}else{
+			} else {
 
-				fn.apply( ctx, args )
-				return next.apply( null, args )
+				args.shift() // remove the "next" parameter
+				subFn.apply( subCtx, args )
+				args.unshift( next ) // put the "next" parameter back
+				return next.apply( ctx, args ) // continue chain
 			}
 
 		}
 
-		enhanced.use( used, null, index )
+		enhanced.use( used, undefined, index )
 
 		return used
 	}
@@ -67,8 +82,8 @@ export default function middle( fn, ctx ) {
 	return enhanced
 }
 
-// ES7 decorator
-export function decorator( target, keyOrCtx, descriptor ) {
+// ES7 decorator ( https://www.martin-brennan.com/es7-decorators/ )
+export function decorator( target, key, descriptor ) {
 
 	if ( !target ) return
 
@@ -77,14 +92,14 @@ export function decorator( target, keyOrCtx, descriptor ) {
 	return {
 		get: function () {
 
-			const enhanced = middle( descriptor.value, this )
-			Object.defineProperty( this, keyOrCtx, {
-				value: enhanced,
+			const newEnhanced = middle( descriptor.value, null, () => this )
+			Object.defineProperty( this, key, {
+				value: newEnhanced,
 				writable: writable,
 				enumerable: enumerable
 			} )
 
-			return enhanced
+			return newEnhanced
 		}
 	}
 }

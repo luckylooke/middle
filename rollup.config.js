@@ -6,7 +6,7 @@ import uglify from 'rollup-plugin-uglify-es';
 
 export default {
 	entry: 'src/middle.src.js',
-	dest: 'dist/middle.es.js',
+	dest: 'dist/middle.rollup.es.js',
 	format: 'es',
 	sourceMap: true,
 	plugins: [

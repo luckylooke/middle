@@ -1,5 +1,8 @@
 # Middle.js changelog
 
+## 4.0.0
+- rewrite, enable this context to be class instance and it is also default context
+
 ## 3.2.0
 - subscribe
 
