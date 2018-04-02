@@ -7,23 +7,22 @@ export default function middle( fn, ctx ) {
 	var enhanced = middle_enhanced_fn
 
 	enhanced._m_stack = []
-	enhanced._m_index = 0
-	enhanced._m_ctx = ctx
+  enhanced._m_index = 0
+  enhanced._m_ctx = ctx
 
 	function middle_enhanced_fn() {
 
 		// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/arguments#Using_the_Spread_Syntax_with_Arguments
 		const args = [ ...arguments ]
 
-		console.log('middle_enhanced_fn this', this && this.txt)
-		debugger
-
-		if ( !ctx && ( ctx === undefined || ctx === null ) && this !== undefined ){
-			enhanced._m_ctx = ctx = this
-		}
+    if ( !ctx && ( ctx === undefined || ctx === null )){
+      enhanced._m_ctx = ctx = this
+    } else {
+      enhanced._m_ctx = ctx
+    }
+    // console.log('middle_enhanced_fn ctx', ctx )
 
 		if ( enhanced._m_stack.length === enhanced._m_index ) {
-
 			enhanced._m_index = 0
 			return fn.apply( ctx, args )
 		}
@@ -92,7 +91,7 @@ export function decorator( target, key, descriptor ) {
 	return {
 		get: function () {
 
-			const newEnhanced = middle( descriptor.value, null, () => this )
+			const newEnhanced = middle( descriptor.value )
 			Object.defineProperty( this, key, {
 				value: newEnhanced,
 				writable: writable,

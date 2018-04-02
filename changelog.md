@@ -1,5 +1,8 @@
 # Middle.js changelog
 
+## 4.0.1
+- minor fixes ( just removed som unused code, and enhanced._m_ctx was not alway set correctly )
+
 ## 4.0.0
 - rewrite, enable this context to be class instance and it is also default context
 

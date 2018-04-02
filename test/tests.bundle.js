@@ -290,15 +290,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 					// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/arguments#Using_the_Spread_Syntax_with_Arguments
 					var args = [].concat(Array.prototype.slice.call(arguments));
 
-					console.log('middle_enhanced_fn this', this && this.txt);
-					debugger;
-
-					if (!ctx && (ctx === undefined || ctx === null) && this !== undefined) {
+					if (!ctx && (ctx === undefined || ctx === null)) {
 						enhanced._m_ctx = ctx = this;
+					} else {
+						enhanced._m_ctx = ctx;
 					}
+					// console.log('middle_enhanced_fn ctx', ctx )
 
 					if (enhanced._m_stack.length === enhanced._m_index) {
-
 						enhanced._m_index = 0;
 						return fn.apply(ctx, args);
 					}
@@ -357,11 +356,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 				return {
 					get: function get() {
-						var _this = this;
 
-						var newEnhanced = middle(descriptor.value, null, function () {
-							return _this;
-						});
+						var newEnhanced = middle(descriptor.value);
 						Object.defineProperty(this, key, {
 							value: newEnhanced,
 							writable: writable,
